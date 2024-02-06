@@ -1,4 +1,4 @@
-package by.ivuts;
+package by.ivuts.model;
 
 public class Course {
     private Long id;
