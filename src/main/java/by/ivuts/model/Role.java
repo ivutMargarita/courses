@@ -1,5 +1,4 @@
-package by.ivuts;
-
+package by.ivuts.model;
 public class Role {
     private Long id;
     private String name;

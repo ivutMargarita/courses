@@ -1,4 +1,4 @@
-package by.ivuts;
+package by.ivuts.model;
 
 import java.time.LocalDate;
 
@@ -16,9 +16,9 @@ public class User {
         this.active = active;
         this.createdDate = createdDate;
     }
+public User(){
 
-    public User() {
-    }
+}
 
     public Long getId() {
         return id;
@@ -52,14 +52,13 @@ public class User {
         this.active = active;
     }
 
-    public LocalDate getCreatedDate() {
-        return createdDate;
-    }
-
+    
     public void setCreatedDate(LocalDate createdDate) {
         this.createdDate = createdDate;
     }
-
+    public LocalDate getCreatedDate(LocalDate now){
+        return createdDate;
+    }
     public boolean equals(Object object) {
         if (object == this) {
             return true;
@@ -82,15 +81,17 @@ public class User {
         if (aThat.isActive() == null || isActive() == null) {
             return false;
         }
-        if (aThat.getCreatedDate() == null || getCreatedDate() == null) {
+        if (aThat.getCreatedDate(LocalDate.now()) == null || getCreatedDate(LocalDate.now()) == null) {
             return false;
         }
         return getId().equals(aThat.getId()) &&
                 getUsername().equals(aThat.getUsername()) &&
                 getPassword().equals(aThat.getPassword()) &&
                 isActive().equals(aThat.isActive()) &&
-                getCreatedDate().equals(aThat.getCreatedDate());
+                getCreatedDate(LocalDate.now()).equals(aThat.getCreatedDate(LocalDate.now()));
     }
+
+   
 
     @Override
     public int hashCode() {
@@ -99,7 +100,7 @@ public class User {
         result += getUsername() == null ? 0 : getUsername().hashCode() + 31 * result;
         result += getPassword() == null ? 0 : getPassword().hashCode() + 31 * result;
         result += isActive() == null ? 0 : isActive().hashCode() + 31 * result;
-        result += getCreatedDate() == null ? 0 : getCreatedDate().hashCode() + 31 * result;
+        result += getCreatedDate(LocalDate.now()) == null ? 0 : getCreatedDate(LocalDate.now()).hashCode() + 31 * result;
         return result;
     }
 
@@ -109,7 +110,9 @@ public class User {
                 append(", username = ").append(getUsername()).
                 append(", password = ").append(getPassword()).
                 append(", active = ").append(isActive()).
-                append(", createdDate = ").append(getCreatedDate()).
+                append(", createdDate = ").append(getCreatedDate(LocalDate.now())).
                 append("}").toString();
     }
+
+
 }
