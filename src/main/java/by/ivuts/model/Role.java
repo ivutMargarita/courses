@@ -1,4 +1,5 @@
 package by.ivuts.model;
+
 public class Role {
     private Long id;
     private String name;
@@ -58,8 +59,8 @@ public class Role {
 
     @Override
     public String toString() {
-        return new StringBuilder(getClass().getSimpleName()).append("{id = ").append(getId()).
-                append(", name = ").append(getName()).
-                append("}").toString();
+        return getClass().getSimpleName() + "{id = " + getId() +
+                ", name = " + getName() +
+                "}";
     }
 }

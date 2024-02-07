@@ -9,6 +9,7 @@ import java.util.List;
 
 public class RoleRepository {
     private final DataSource dataSource;
+
     public RoleRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -28,6 +29,7 @@ public class RoleRepository {
             throw new RuntimeException("Cannot find role", e);
         }
     }
+
     public void update(Role role) {
         try (Connection conn = dataSource.getConnection();//ресурсы для запроса
              PreparedStatement stmt = conn.prepareStatement("update roles set name = ? where id= ?")) {
@@ -38,6 +40,7 @@ public class RoleRepository {
             throw new RuntimeException("Cannot update user", e);
         }
     }
+
     public List<Role> findAll() {
         List<Role> role = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();//ресурсы для запроса
@@ -54,6 +57,7 @@ public class RoleRepository {
         }
         return role;
     }
+
     public Long insert(Role role) {
         try (Connection conn = dataSource.getConnection();//ресурсы для запроса
              PreparedStatement stmt = conn.prepareStatement("INSERT INTO roles (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS)) {
@@ -69,6 +73,7 @@ public class RoleRepository {
             throw new RuntimeException("Cannot insert role", e);
         }
     }
+
     public void delete(Long id) throws SQLException {
         try (Connection conn = dataSource.getConnection();//ресурсы для запроса
              PreparedStatement stmt = conn.prepareStatement("DELETE FROM roles r where r.id = ?")) {
@@ -86,9 +91,10 @@ public class RoleRepository {
             }
         }
     }
+
     private void deleteRoleLinks(Long id) {
         try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement deleteRolesLinks = conn.prepareStatement("delete from users_roles_links where role_id = ?")){
+             PreparedStatement deleteRolesLinks = conn.prepareStatement("delete from users_roles_links where role_id = ?")) {
             deleteRolesLinks.setLong(1, id);
             deleteRolesLinks.executeUpdate();
         } catch (SQLException e) {

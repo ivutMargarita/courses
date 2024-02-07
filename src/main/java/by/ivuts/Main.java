@@ -10,6 +10,9 @@ import org.postgresql.ds.PGSimpleDataSource;
 import java.util.List;
 
 public class Main {
+    // сконфигурировать Hibernate ПОСЛЕДНЕЙ ВЕРСИИ (hibernate.cfg.xml)
+    // перевести сущности на Hibernate
+    // перевести репозитории на Hibernate
 
     public static void main(String[] args) throws Exception {
         PGSimpleDataSource dataSource = new DataSource().createDataSource();

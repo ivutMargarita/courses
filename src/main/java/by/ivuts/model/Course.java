@@ -75,6 +75,7 @@ public class Course {
                 getHours().equals(aThat.getHours()) &&
                 getTeacherId().equals(aThat.getTeacherId());
     }
+
     @Override
     public int hashCode() {
         int result = 31;
@@ -87,10 +88,10 @@ public class Course {
 
     @Override
     public String toString() {
-        return new StringBuilder(getClass().getSimpleName()).append("{id = ").append(getId()).
-                append(", name = ").append(getName()).
-                append(", hours = ").append(getHours()).
-                append(", teacherId = ").append(getTeacherId()).
-                append("}").toString();
+        return getClass().getSimpleName() + "{id = " + getId() +
+                ", name = " + getName() +
+                ", hours = " + getHours() +
+                ", teacherId = " + getTeacherId() +
+                "}";
     }
 }

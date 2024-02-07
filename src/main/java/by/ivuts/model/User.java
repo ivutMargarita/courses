@@ -16,9 +16,10 @@ public class User {
         this.active = active;
         this.createdDate = createdDate;
     }
-public User(){
 
-}
+    public User() {
+
+    }
 
     public Long getId() {
         return id;
@@ -52,13 +53,15 @@ public User(){
         this.active = active;
     }
 
-    
+
     public void setCreatedDate(LocalDate createdDate) {
         this.createdDate = createdDate;
     }
-    public LocalDate getCreatedDate(LocalDate now){
+
+    public LocalDate getCreatedDate(LocalDate now) {
         return createdDate;
     }
+
     public boolean equals(Object object) {
         if (object == this) {
             return true;
@@ -91,7 +94,6 @@ public User(){
                 getCreatedDate(LocalDate.now()).equals(aThat.getCreatedDate(LocalDate.now()));
     }
 
-   
 
     @Override
     public int hashCode() {
@@ -106,12 +108,12 @@ public User(){
 
     @Override
     public String toString() {
-        return new StringBuilder(getClass().getSimpleName()).append("{id = ").append(getId()).
-                append(", username = ").append(getUsername()).
-                append(", password = ").append(getPassword()).
-                append(", active = ").append(isActive()).
-                append(", createdDate = ").append(getCreatedDate(LocalDate.now())).
-                append("}").toString();
+        return getClass().getSimpleName() + "{id = " + getId() +
+                ", username = " + getUsername() +
+                ", password = " + getPassword() +
+                ", active = " + isActive() +
+                ", createdDate = " + getCreatedDate(LocalDate.now()) +
+                "}";
     }
 
 
