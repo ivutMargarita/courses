@@ -75,7 +75,6 @@ public class Course {
                 getHours().equals(aThat.getHours()) &&
                 getTeacherId().equals(aThat.getTeacherId());
     }
-
     @Override
     public int hashCode() {
         int result = 31;

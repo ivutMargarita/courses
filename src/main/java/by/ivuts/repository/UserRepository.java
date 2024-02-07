@@ -42,11 +42,20 @@ public class UserRepository {
             stmt.setBoolean(3, user.isActive());
             stmt.setLong(4, user.getId());
             stmt.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException("Cannot update user", e);
         }
+    }
 
+    public void addRoleToUser(Long userId, Long roleId) {
+        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
+             PreparedStatement stmt = conn.prepareStatement("insert into users_roles_links(user_id, role_id) VALUES(?, ?)")) {
+            stmt.setLong(1, userId);
+            stmt.setLong(2, roleId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Cannot update user", e);
+        }
     }
 
     public List<User> findAll() {
