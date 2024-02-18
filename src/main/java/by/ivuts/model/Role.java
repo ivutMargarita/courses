@@ -1,66 +1,42 @@
 package by.ivuts.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "roles")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
 
-    public Role(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "users_roles_links",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> users = new LinkedHashSet<>();
 
-    public Role() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    public Role(Long id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        }
-
-        if (object == null || object.getClass() != getClass()) {
-            return false;
-        }
-
-        Role aThat = (Role) object;
-        if (aThat.getId() == null || getId() == null) {
-            return false;
-        }
-        if (aThat.getName() == null || getName() == null) {
-            return false;
-        }
-        return ((getId().equals(aThat.getId()) &&
-                getName().equals(aThat.getName())));
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 31;
-        result += getId() == null ? 0 : getId().hashCode() + 31 * result;
-        result += getName() == null ? 0 : getName().hashCode() + 31 * result;
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "{id = " + getId() +
-                ", name = " + getName() +
-                "}";
-    }
 }

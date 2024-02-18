@@ -1,109 +1,74 @@
 package by.ivuts.repository;
 
+import by.ivuts.exception.RepositoryException;
 import by.ivuts.model.Course;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class CourseRepository {
-    private final DataSource dataSource;
 
-    public CourseRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    private final SessionFactory sessionFactory;
 
     public Course findById(Long id) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM courses c where c.id=?")) {
-            stmt.setLong(1, id);
-            ResultSet resultSet = stmt.executeQuery();
-            Course course = new Course();
-            while (resultSet.next()) {
-                course.setId(resultSet.getLong("id"));
-                course.setName(resultSet.getString("name"));
-                course.setHours(resultSet.getInt("hours"));
-                course.setTeacherId(resultSet.getLong("teacher_id"));
-            }
-            return course;
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot find course", e);
-        }
-    }
-
-    public void update(Course course) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("update courses set name = ?, hours = ?, teacher_id = ? where id= ?")) {
-            stmt.setString(1, course.getName());
-            stmt.setInt(2, course.getHours());
-            stmt.setLong(3, course.getTeacherId());
-            stmt.setLong(4, course.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot update course", e);
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(Course.class, id);
+        } catch (Exception e) {
+            throw new RepositoryException("Course with id = " + id + " was not found");
         }
     }
 
     public List<Course> findAll() {
-        List<Course> course = new ArrayList<>();
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM courses")) {
-            ResultSet resultSet = stmt.executeQuery();
-            while (resultSet.next()) {
-                Course course1 = new Course();
-                course1.setId(resultSet.getLong("id"));
-                course1.setName(resultSet.getString("name"));
-                course1.setHours(resultSet.getInt("hours"));
-                course1.setTeacherId(resultSet.getLong("teacher_id"));
-                course.add(course1);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot find course", e);
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("From courses", Course.class).list();
+        } catch (Exception e) {
+            throw new RepositoryException("Course was not found");
         }
-        return course;
     }
+
 
     public void insert(Course course) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("INSERT INTO courses (name, hours,teacher_id) VALUES (?, ?, ?)")) {
-            stmt.setString(1, course.getName());
-            stmt.setInt(2, course.getHours());
-            stmt.setLong(3, course.getTeacherId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot find course", e);
-        }
-    }
-
-    public void delete(Long id) throws SQLException {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM courses c where c.id = ?")) {
+        try (Session session = sessionFactory.openSession()) {
             try {
-                conn.setAutoCommit(false);
-                stmt.setLong(1, id);
-                deleteCourseLinks(id);
-                stmt.executeUpdate();
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                throw new RuntimeException("Cannot delete course", e);
-            } finally {
-                conn.setAutoCommit(true);
+                Transaction transaction = session.beginTransaction();
+                session.persist(course);
+                transaction.commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+                throw new RepositoryException("Course was not saved");
             }
         }
     }
 
-    private void deleteCourseLinks(Long id) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement deleteUsersLinks = conn.prepareStatement("delete from users_courses_links where course_id = ? ")) {
-            deleteUsersLinks.setLong(1, id);
-            deleteUsersLinks.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot delete Course Links", e);
+    public void update(Course course) {
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                Transaction transaction = session.beginTransaction();
+                session.merge(course);
+                transaction.commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+                throw new RepositoryException("Course was not updated");
+            }
         }
     }
+
+    public void delete(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                Transaction transaction = session.beginTransaction();
+                Course course = session.getReference(Course.class, id);
+                session.remove(course);
+                transaction.commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+                throw new RepositoryException("Course was not deleted");
+            }
+        }
+    }
+
 }
