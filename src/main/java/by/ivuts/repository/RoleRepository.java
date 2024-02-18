@@ -1,98 +1,72 @@
 package by.ivuts.repository;
 
+import by.ivuts.exception.RepositoryException;
 import by.ivuts.model.Role;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
-import javax.sql.DataSource;
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class RoleRepository {
-    private final DataSource dataSource;
-    public RoleRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+
+    private final SessionFactory sessionFactory;
 
     public Role findById(Long id) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM roles c where c.id=?")) {
-            stmt.setLong(1, id);
-            ResultSet resultSet = stmt.executeQuery();
-            Role role = new Role();
-            while (resultSet.next()) {
-                role.setId(resultSet.getLong("id"));
-                role.setName(resultSet.getString("name"));
-            }
-            return role;
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot find role", e);
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(Role.class, id);
+        } catch (Exception e) {
+            throw new RepositoryException("Role with id = " + id + " was not found");
         }
     }
-    public void update(Role role) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("update roles set name = ? where id= ?")) {
-            stmt.setString(1, role.getName());
-            stmt.setLong(2, role.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot update user", e);
-        }
-    }
+
     public List<Role> findAll() {
-        List<Role> role = new ArrayList<>();
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM roles")) {
-            ResultSet resultSet = stmt.executeQuery();
-            while (resultSet.next()) {
-                Role role1 = new Role();
-                role1.setId(resultSet.getLong("id"));
-                role1.setName(resultSet.getString("name"));
-                role.add(role1);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot find role", e);
-        }
-        return role;
-    }
-    public Long insert(Role role) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("INSERT INTO roles (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, role.getName());
-            stmt.executeUpdate();
-            ResultSet generatedKeys = stmt.getGeneratedKeys();
-            Long id = 0L;
-            if (generatedKeys.next()) {
-                id = generatedKeys.getLong(1);
-            }
-            return id;
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot insert role", e);
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("From roles", Role.class).list();
+        } catch (Exception e) {
+            throw new RepositoryException("Role was not found");
         }
     }
-    public void delete(Long id) throws SQLException {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM roles r where r.id = ?")) {
+
+    public void insert(Role role) {
+        try (Session session = sessionFactory.openSession()) {
             try {
-                conn.setAutoCommit(false);
-                stmt.setLong(1, id);
-                deleteRoleLinks(id);
-                stmt.executeUpdate();
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                throw new RuntimeException("Cannot delete role", e);
-            } finally {
-                conn.setAutoCommit(true);
+                Transaction transaction = session.beginTransaction();
+                session.persist(role);
+                transaction.commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+                throw new RepositoryException("Role was not saved");
             }
         }
     }
-    private void deleteRoleLinks(Long id) {
-        try (Connection conn = dataSource.getConnection();//ресурсы для запроса
-             PreparedStatement deleteRolesLinks = conn.prepareStatement("delete from users_roles_links where role_id = ?")){
-            deleteRolesLinks.setLong(1, id);
-            deleteRolesLinks.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot delete role", e);
+
+    public void update(Role role) {
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                Transaction transaction = session.beginTransaction();
+                session.merge(role);
+                transaction.commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+                throw new RepositoryException("Role was not updated");
+            }
+        }
+    }
+
+    public void delete(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                Transaction transaction = session.beginTransaction();
+                Role role = session.getReference(Role.class, id);
+                session.remove(role);
+                transaction.commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+                throw new RepositoryException("Role was not deleted");
+            }
         }
     }
 
