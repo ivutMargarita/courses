@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper
+@Mapper // сделать бином
 public interface CourseMapper {
 
     CourseDto toDto(Course course);

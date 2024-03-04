@@ -11,7 +11,9 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -33,6 +35,8 @@ public class Role {
     @JoinTable(name = "users_roles_links",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<User> users = new LinkedHashSet<>();
 
     public Role(Long id) {

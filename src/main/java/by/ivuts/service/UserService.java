@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor
+//@Component
 public class UserService {
 
     private final UserRepository userRepository;

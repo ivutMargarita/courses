@@ -6,17 +6,22 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @RequiredArgsConstructor
+@Repository
 public class CourseRepository {
 
     private final SessionFactory sessionFactory;
 
     public Course findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return session.get(Course.class, id);
+            Query<Course> query = session.createQuery("FROM Course c join fetch c.users where c.id = ?", Course.class);
+            query.setParameter(1, id);
+            return query.getSingleResult();
         } catch (Exception e) {
             throw new RepositoryException("Course with id = " + id + " was not found");
         }
@@ -24,7 +29,7 @@ public class CourseRepository {
 
     public List<Course> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("From courses", Course.class).list();
+            return session.createQuery("FROM Course c join fetch c.users", Course.class).list();
         } catch (Exception e) {
             throw new RepositoryException("Course was not found");
         }
@@ -69,6 +74,13 @@ public class CourseRepository {
                 throw new RepositoryException("Course was not deleted");
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CourseRepository{" +
+                "my bean course repository" +
+                '}';
     }
 
 }
