@@ -1,86 +1,19 @@
 package by.ivuts.repository;
 
-import by.ivuts.exception.RepositoryException;
 import by.ivuts.model.Course;
-import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-@Repository
-public class CourseRepository {
+public interface CourseRepository {
 
-    private final SessionFactory sessionFactory;
+    Course findById(Long id);
 
-    public Course findById(Long id) {
-        try (Session session = sessionFactory.openSession()) {
-            Query<Course> query = session.createQuery("FROM Course c join fetch c.users where c.id = ?", Course.class);
-            query.setParameter(1, id);
-            return query.getSingleResult();
-        } catch (Exception e) {
-            throw new RepositoryException("Course with id = " + id + " was not found");
-        }
-    }
+    List<Course> findAll();
 
-    public List<Course> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Course c join fetch c.users", Course.class).list();
-        } catch (Exception e) {
-            throw new RepositoryException("Course was not found");
-        }
-    }
+    void insert(Course course);
 
+    void update(Course course);
 
-    public void insert(Course course) {
-        try (Session session = sessionFactory.openSession()) {
-            try {
-                Transaction transaction = session.beginTransaction();
-                session.persist(course);
-                transaction.commit();
-            } catch (Exception e) {
-                session.getTransaction().rollback();
-                throw new RepositoryException("Course was not saved");
-            }
-        }
-    }
-
-    public void update(Course course) {
-        try (Session session = sessionFactory.openSession()) {
-            try {
-                Transaction transaction = session.beginTransaction();
-                session.merge(course);
-                transaction.commit();
-            } catch (Exception e) {
-                session.getTransaction().rollback();
-                throw new RepositoryException("Course was not updated");
-            }
-        }
-    }
-
-    public void delete(Long id) {
-        try (Session session = sessionFactory.openSession()) {
-            try {
-                Transaction transaction = session.beginTransaction();
-                Course course = session.getReference(Course.class, id);
-                session.remove(course);
-                transaction.commit();
-            } catch (Exception e) {
-                session.getTransaction().rollback();
-                throw new RepositoryException("Course was not deleted");
-            }
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "CourseRepository{" +
-                "my bean course repository" +
-                '}';
-    }
+    void delete(Long id);
 
 }

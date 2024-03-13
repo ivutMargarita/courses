@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ApplicationConfiguration {
-
     @Bean
     public SessionFactory sessionFactory() {
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder().configure().build();

@@ -1,36 +1,20 @@
 package by.ivuts.service;
 
-import by.ivuts.model.Course;
-import by.ivuts.repository.CourseRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import by.ivuts.dto.CourseCreateAndUpdateDto;
+import by.ivuts.dto.CourseDto;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-@Service
-public class CourseService {
+public interface CourseService {
 
-    private final CourseRepository courseRepository;
+    CourseDto findById(Long id);
 
-    public Course findById(Long id) {
-        return courseRepository.findById(id);
-    }
+    List<CourseDto> findAll();
 
-    public List<Course> findAll() {
-        return courseRepository.findAll();
-    }
+    void insert(CourseCreateAndUpdateDto dto);
 
-    public void insert(Course course) {
-        courseRepository.insert(course);
-    }
+    void update(Long id, CourseCreateAndUpdateDto dto);
 
-    public void update(Course course) {
-        courseRepository.update(course);
-    }
-
-    public void delete(Long id) {
-        courseRepository.delete(id);
-    }
+    void delete(Long id);
 
 }

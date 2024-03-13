@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper // сделать бином
+@Mapper(componentModel = "spring")
 public interface CourseMapper {
 
     CourseDto toDto(Course course);
